@@ -2,14 +2,13 @@ name: Build
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
     tags: ["v*"]
   pull_request:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: build-${{ github.ref }}
@@ -35,47 +34,66 @@ jobs:
           test -x dist/KeyGlow.app/Contents/MacOS/InputHeat
           plutil -lint dist/KeyGlow.app/Contents/Info.plist
           codesign --verify --deep --strict --verbose=2 dist/KeyGlow.app
-          lipo -archs dist/KeyGlow.app/Contents/MacOS/InputHeat
+          lipo dist/KeyGlow.app/Contents/MacOS/InputHeat -verify_arch arm64
+          lipo dist/KeyGlow.app/Contents/MacOS/InputHeat -verify_arch x86_64
+          test -f dist/KeyGlow.app/Contents/Resources/dashboard.js
+          test -f dist/KeyGlow.app/Contents/Resources/dashboard.css
           ditto -c -k --keepParent dist/KeyGlow.app "dist/KeyGlow-${VERSION}-macos-universal.zip"
-          ls -lh dist/*.zip
+          (cd dist && shasum -a 256 "KeyGlow-${VERSION}-macos-universal.zip" > "KeyGlow-${VERSION}-macos-universal.zip.sha256")
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: KeyGlow-macos-universal
-          path: dist/KeyGlow-*-macos-universal.zip
+          path: |
+            dist/KeyGlow-*-macos-universal.zip
+            dist/KeyGlow-*-macos-universal.zip.sha256
           if-no-files-found: error
           retention-days: 30
 
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download universal build
+        uses: actions/download-artifact@v4
+        with:
+          name: KeyGlow-macos-universal
+          path: dist
+
       - name: Publish GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          VERSION="${{ steps.package.outputs.version }}"
+          VERSION=$(python3 -c 'import plistlib; print(plistlib.load(open("Info.plist", "rb"))["CFBundleShortVersionString"])')
           if [[ "v${VERSION}" != "${GITHUB_REF_NAME}" ]]; then
             echo "::error::Tag ${GITHUB_REF_NAME} does not match app version v${VERSION}"
             exit 1
           fi
           cat > release-notes.md <<EOF
-          KeyGlow ${VERSION} — macOS 13+ universal build (Apple Silicon + Intel).
+          KeyGlow ${VERSION} — macOS 13+ (Apple Silicon + Intel).
 
-          This build is ad-hoc signed and not notarized. On first launch,
-          right-click KeyGlow.app and choose Open, or run:
+          Download the ZIP, unzip it, and move KeyGlow.app to Applications.
+          This build is ad-hoc signed and not notarized. macOS may require
+          System Settings → Privacy & Security → Open Anyway on first launch.
 
-              xattr -cr /Applications/KeyGlow.app
-
-          KeyGlow needs Input Monitoring permission under
-          System Settings › Privacy & Security › Input Monitoring.
-          It never records typed text or screen content.
+          Enable Input Monitoring in System Settings → Privacy & Security.
+          English and Simplified Chinese follow your device language by default.
+          Only activity counts and pointer grids are stored locally.
           EOF
           ASSET="dist/KeyGlow-${VERSION}-macos-universal.zip"
+          (cd dist && shasum -a 256 -c "KeyGlow-${VERSION}-macos-universal.zip.sha256")
           if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
-            gh release upload "${GITHUB_REF_NAME}" "${ASSET}#KeyGlow ${VERSION} (macOS universal, ad-hoc signed)" --clobber
+            gh release upload "${GITHUB_REF_NAME}" "$ASSET" "${ASSET}.sha256" --clobber
           else
-            gh release create "${GITHUB_REF_NAME}" \
-              "${ASSET}#KeyGlow ${VERSION} (macOS universal, ad-hoc signed)" \
+            gh release create "${GITHUB_REF_NAME}" "$ASSET" "${ASSET}.sha256" \
               --title "KeyGlow ${GITHUB_REF_NAME}" \
               --notes-file release-notes.md
           fi

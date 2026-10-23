@@ -15,17 +15,18 @@ else
   ARCHS=("$(uname -m)")
 fi
 
-mkdir -p "$BUILD_DIR" "$APP/Contents/MacOS" "$APP/Contents/Resources"
+mkdir -p "$BUILD_DIR/ModuleCache" "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
 BINARIES=()
 for arch in "${ARCHS[@]}"; do
   echo "→ 编译 Swift ($arch)…"
   binary="$BUILD_DIR/$BIN_NAME-$arch"
-  swiftc -O -swift-version 5 \
+  swiftc -O -swift-version 5 -module-cache-path "$BUILD_DIR/ModuleCache" \
     -target "${arch}-apple-macos${DEPLOYMENT_TARGET}" \
     Sources/AppDelegate.swift \
     Sources/DashboardWindow.swift \
     Sources/EventMonitor.swift \
+    Sources/Localization.swift \
     Sources/StatsStore.swift \
     Sources/main.swift \
     -o "$binary" \
@@ -38,6 +39,8 @@ done
 
 cp Info.plist "$APP/Contents/Info.plist"
 cp Resources/dashboard.html Resources/dashboard.css Resources/dashboard.js "$APP/Contents/Resources/"
+
+cp -R Resources/en.lproj Resources/zh-Hans.lproj "$APP/Contents/Resources/"
 
 if [[ ${#BINARIES[@]} -eq 1 ]]; then
   cp "${BINARIES[0]}" "$APP/Contents/MacOS/$BIN_NAME"

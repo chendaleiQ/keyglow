@@ -149,20 +149,28 @@ final class StatsStore {
         var externalIndex = 0
         var infos: [[String: Any]] = []
         for screen in screens {
+            let kind: String
+            var index = 0
             var label: String
             if CGDisplayIsBuiltin(screen.id) != 0 {
-                label = "内建显示器"
+                kind = "builtin"
+                label = "Built-in display"
             } else if screen.id == mainID {
-                label = "主显示器"
+                kind = "main"
+                label = "Main display"
             } else {
                 externalIndex += 1
-                label = "外接显示器 \(externalIndex)"
+                index = externalIndex
+                kind = "external"
+                label = "Display \(externalIndex)"
             }
             infos.append([
                 "x": Double((screen.rect.minX - union.minX) / union.width),
                 "y": Double((screen.rect.minY - union.minY) / union.height),
                 "w": Double(screen.rect.width / union.width),
                 "h": Double(screen.rect.height / union.height),
+                "kind": kind,
+                "index": index,
                 "label": label,
                 "main": screen.id == mainID,
             ])

@@ -13,28 +13,6 @@ private final class WeakScriptMessageHandler: NSObject, WKScriptMessageHandler {
     }
 }
 
-/// A native strip above the web content that reliably moves the window when dragged.
-private final class WindowDragBar: NSView {
-    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
-        true
-    }
-
-    override func mouseDown(with event: NSEvent) {
-        guard let window else { return }
-        if event.clickCount == 2 {
-            window.performZoom(nil)
-            return
-        }
-        NSCursor.closedHand.push()
-        window.performDrag(with: event)
-        NSCursor.pop()
-    }
-
-    override func resetCursorRects() {
-        addCursorRect(bounds, cursor: .openHand)
-    }
-}
-
 final class DashboardWindowController: NSWindowController, WKScriptMessageHandler, WKNavigationDelegate {
     var onReady: (() -> Void)?
     var onAction: ((String) -> Void)?
@@ -51,42 +29,30 @@ final class DashboardWindowController: NSWindowController, WKScriptMessageHandle
 
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.translatesAutoresizingMaskIntoConstraints = false
-        webView.underPageBackgroundColor = NSColor(red: 0.043, green: 0.05, blue: 0.07, alpha: 1)
+        webView.underPageBackgroundColor = .windowBackgroundColor
 
         let visible = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
-        let initialWidth = min(1180, max(920, visible.width - 120))
-        let initialHeight = min(980, max(680, visible.height - 80))
+        let initialWidth = min(1160, max(900, visible.width - 160))
+        let initialHeight = min(900, max(660, visible.height - 120))
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: initialWidth, height: initialHeight),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
         )
         window.title = "KeyGlow"
-        window.titleVisibility = .hidden
-        window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = false
         window.isReleasedWhenClosed = false
         window.minSize = NSSize(width: 920, height: 680)
-        window.backgroundColor = NSColor(red: 0.043, green: 0.05, blue: 0.07, alpha: 1)
-        window.appearance = NSAppearance(named: .darkAqua)
+        window.backgroundColor = .windowBackgroundColor
 
         let container = NSView()
         container.addSubview(webView)
-
-        let dragBar = WindowDragBar()
-        dragBar.translatesAutoresizingMaskIntoConstraints = false
-        container.addSubview(dragBar)
-
         NSLayoutConstraint.activate([
             webView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             webView.topAnchor.constraint(equalTo: container.topAnchor),
             webView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
-            dragBar.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            dragBar.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-            dragBar.topAnchor.constraint(equalTo: container.topAnchor),
-            dragBar.heightAnchor.constraint(equalToConstant: 46),
         ])
         window.contentView = container
 

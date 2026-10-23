@@ -11,7 +11,6 @@
 
   const ROWS = [
     {
-      height: 29,
       items: [
         KEY('esc', 0x35, 1, 'word'),
         GAP(1),
@@ -23,7 +22,6 @@
       ],
     },
     {
-      height: 43,
       items: [
         KEY('`', 0x32, 1),
         KEY('1', 0x12, 1), KEY('2', 0x13, 1), KEY('3', 0x14, 1), KEY('4', 0x15, 1),
@@ -34,7 +32,6 @@
       ],
     },
     {
-      height: 43,
       items: [
         KEY('tab', 0x30, 1.5, 'word'),
         KEY('Q', 0x0c, 1), KEY('W', 0x0d, 1), KEY('E', 0x0e, 1), KEY('R', 0x0f, 1),
@@ -44,7 +41,6 @@
       ],
     },
     {
-      height: 43,
       items: [
         KEY('caps', 0x39, 1.75, 'word'),
         KEY('A', 0x00, 1), KEY('S', 0x01, 1), KEY('D', 0x02, 1), KEY('F', 0x03, 1),
@@ -54,7 +50,6 @@
       ],
     },
     {
-      height: 43,
       items: [
         KEY('shift', 0x38, 2.25, 'word'),
         KEY('Z', 0x06, 1), KEY('X', 0x07, 1), KEY('C', 0x08, 1), KEY('V', 0x09, 1),
@@ -64,7 +59,6 @@
       ],
     },
     {
-      height: 43,
       items: [
         KEY('fn', 0x3f, 1, 'word'),
         KEY('ctrl', 0x3b, 1, 'word'),
@@ -79,20 +73,149 @@
     },
   ];
 
-  const HEAT_STOPS = [
-    [0, [46, 27, 69]],
-    [0.28, [108, 42, 99]],
-    [0.55, [178, 59, 80]],
-    [0.78, [239, 124, 61]],
-    [1, [246, 200, 95]],
-  ];
-
-  const STATUS_TEXT = {
-    connecting: '连接中',
-    monitoring: '正在记录',
-    paused: '已暂停',
-    noPermission: '未授权',
-    waiting: '等待权限生效',
+  const STRINGS = {
+    en: {
+      'language.system': 'System language',
+      'aria.language': 'Language',
+      'aria.summary': 'Activity summary',
+      'aria.range': 'Time range',
+      'aria.keyboard': 'Keyboard heatmap',
+      'range.today': 'Today',
+      'range.7d': '7 days',
+      'range.all': 'All',
+      'rangeLabel.today': 'Today',
+      'rangeLabel.7d': 'Last 7 days',
+      'rangeLabel.all': 'All time',
+      'status.connecting': 'Connecting…',
+      'status.recording': 'Recording',
+      'status.paused': 'Paused',
+      'status.noPermission': 'Not authorized',
+      'status.waiting': 'Waiting',
+      'permission.title': 'Input Monitoring required',
+      'permission.text': 'Allow KeyGlow to read global key and mouse events. Only counts and coordinates are stored.',
+      'permission.openSettings': 'Open Settings',
+      'permission.grant': 'Grant Permission',
+      'permission.waiting.title': 'Permission granted, listener inactive',
+      'permission.waiting.text': 'Restart KeyGlow to start recording.',
+      'permission.restart': 'Restart App',
+      'stat.keys': 'Key presses',
+      'stat.clicks': 'Clicks',
+      'stat.distance': 'Distance',
+      'stat.speed': 'Typing speed',
+      'unit.m': 'm',
+      'unit.km': 'km',
+      'unit.perMinute': 'keys/min',
+      'stats.keysSubOne': '{range} · 1 key tracked',
+      'stats.keysSubMany': '{range} · {count} keys tracked',
+      'stats.clicksSubNone': '{range} · No clicks',
+      'stats.clicksSub': '{range} · Left {left} / Right {right}',
+      'stats.clicksSubOther': '{range} · Left {left} / Right {right} / Other {other}',
+      'stats.scrollOne': '{range} · 1 scroll',
+      'stats.scrollMany': '{range} · {count} scrolls',
+      'stats.speedLive': 'Last 60 seconds · Live',
+      'stats.speedPaused': 'Last 60 seconds · Paused',
+      'stats.speedIdle': 'Last 60 seconds',
+      'panel.keyboard': 'Keyboard',
+      'panel.mouse': 'Mouse',
+      'meta.keyboardOne': '{range} · 1 press',
+      'meta.keyboardMany': '{range} · {count} presses',
+      'meta.mouse': '{range} · {displays}',
+      'view.movement': 'Movement',
+      'view.clicks': 'Clicks',
+      'samples.one': '1 sample',
+      'samples.many': '{count} samples',
+      'clicks.one': '1 click',
+      'clicks.many': '{count} clicks',
+      'display.one': '1 display',
+      'display.many': '{count} displays',
+      'legend.less': 'Less',
+      'legend.more': 'More',
+      'empty.move': 'Move the pointer to draw a heatmap',
+      'empty.click': 'Click to see where clicks land',
+      'empty.noPermission': 'Grant Input Monitoring to record pointer activity',
+      'empty.waiting': 'Waiting for the listener to start',
+      'empty.paused': 'Recording paused',
+      'foot.privacy': 'Stored locally · No input content recorded',
+      'foot.openData': 'Open Data Folder',
+      'tooltip.key': 'Key {key}',
+      'tooltip.pressOne': '1 press · {percent}%',
+      'tooltip.presses': '{count} presses · {percent}%',
+      'tooltip.none': 'No data yet',
+      'display.builtin': 'Built-in display',
+      'display.main': 'Main display',
+      'display.external': 'Display {index}',
+    },
+    zh: {
+      'language.system': '跟随系统',
+      'aria.language': '语言',
+      'aria.summary': '活动概览',
+      'aria.range': '时间范围',
+      'aria.keyboard': '键盘按键热力图',
+      'range.today': '今日',
+      'range.7d': '近 7 天',
+      'range.all': '全部',
+      'rangeLabel.today': '今日',
+      'rangeLabel.7d': '近 7 天',
+      'rangeLabel.all': '全部记录',
+      'status.connecting': '连接中…',
+      'status.recording': '正在记录',
+      'status.paused': '已暂停',
+      'status.noPermission': '未授权',
+      'status.waiting': '等待权限',
+      'permission.title': '需要“输入监控”权限',
+      'permission.text': 'macOS 只允许经你授权的应用读取全局按键与鼠标事件。仅保存次数和坐标。',
+      'permission.openSettings': '打开系统设置',
+      'permission.grant': '授予权限',
+      'permission.waiting.title': '已授权，但监听尚未生效',
+      'permission.waiting.text': '重启 KeyGlow 后即可开始记录。',
+      'permission.restart': '重启应用',
+      'stat.keys': '按键次数',
+      'stat.clicks': '鼠标点击',
+      'stat.distance': '鼠标移动',
+      'stat.speed': '当前速度',
+      'unit.m': '米',
+      'unit.km': '公里',
+      'unit.perMinute': '键/分',
+      'stats.keysSubOne': '{range} · 1 个按键有记录',
+      'stats.keysSubMany': '{range} · {count} 个按键有记录',
+      'stats.clicksSubNone': '{range} · 暂无点击记录',
+      'stats.clicksSub': '{range} · 左 {left} / 右 {right}',
+      'stats.clicksSubOther': '{range} · 左 {left} / 右 {right} / 其他 {other}',
+      'stats.scrollOne': '{range} · 滚轮 1 次',
+      'stats.scrollMany': '{range} · 滚轮 {count} 次',
+      'stats.speedLive': '最近 60 秒 · 实时',
+      'stats.speedPaused': '最近 60 秒 · 已暂停',
+      'stats.speedIdle': '最近 60 秒',
+      'panel.keyboard': '键盘',
+      'panel.mouse': '鼠标',
+      'meta.keyboardOne': '{range} · 共 1 次按键',
+      'meta.keyboardMany': '{range} · 共 {count} 次按键',
+      'meta.mouse': '{range} · {displays}',
+      'view.movement': '移动',
+      'view.clicks': '点击',
+      'samples.one': '1 个采样点',
+      'samples.many': '{count} 个采样点',
+      'clicks.one': '1 次点击',
+      'clicks.many': '{count} 次点击',
+      'display.one': '1 块屏幕',
+      'display.many': '{count} 块屏幕',
+      'legend.less': '少',
+      'legend.more': '多',
+      'empty.move': '移动鼠标后显示热力图',
+      'empty.click': '点击鼠标后显示分布',
+      'empty.noPermission': '授予“输入监控”权限后开始记录',
+      'empty.waiting': '等待监听生效',
+      'empty.paused': '记录已暂停',
+      'foot.privacy': '仅本机保存 · 不记录输入内容',
+      'foot.openData': '打开数据文件夹',
+      'tooltip.key': '按键 {key}',
+      'tooltip.pressOne': '1 次 · 占 {percent}%',
+      'tooltip.presses': '{count} 次 · 占 {percent}%',
+      'tooltip.none': '暂无记录',
+      'display.builtin': '内建显示器',
+      'display.main': '主显示器',
+      'display.external': '外接显示器 {index}',
+    },
   };
 
   const state = {
@@ -106,9 +229,11 @@
     paused: false,
     apm: 0,
     range: 'today',
+    language: (navigator.language || 'en').toLowerCase().startsWith('zh') ? 'zh' : 'en',
   };
 
   const refs = {
+    languageSelect: document.getElementById('languageSelect'),
     keyboard: document.getElementById('keyboard'),
     keyboardWrap: document.querySelector('.keyboard-wrap'),
     statusPill: document.getElementById('statusPill'),
@@ -121,6 +246,7 @@
     statDistanceUnit: document.getElementById('statDistanceUnit'),
     statDistanceSub: document.getElementById('statDistanceSub'),
     statAPM: document.getElementById('statAPM'),
+    statAPMUnit: document.getElementById('statAPMUnit'),
     statAPMSub: document.getElementById('statAPMSub'),
     keyboardMeta: document.getElementById('keyboardMeta'),
     mouseMeta: document.getElementById('mouseMeta'),
@@ -137,7 +263,6 @@
     bannerText: document.getElementById('bannerText'),
     bannerPrimary: document.getElementById('bannerPrimary'),
     bannerSecondary: document.getElementById('bannerSecondary'),
-    footerState: document.getElementById('footerState'),
     tooltip: document.getElementById('tooltip'),
     openDataFolder: document.getElementById('openDataFolder'),
   };
@@ -147,6 +272,17 @@
   let lastAgg = null;
   let resizeFrame = 0;
 
+  function t(key, values) {
+    const table = STRINGS[state.language] || STRINGS.en;
+    let text = table[key] || STRINGS.en[key] || key;
+    if (values) {
+      text = text.replace(/\{(\w+)\}/g, (match, name) => (
+        Object.prototype.hasOwnProperty.call(values, name) ? values[name] : ''
+      ));
+    }
+    return text;
+  }
+
   function localDateKey(date) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -155,33 +291,35 @@
   }
 
   function fullNumber(value) {
-    return Math.round(value || 0).toLocaleString('zh-CN');
+    return Math.round(value || 0).toLocaleString(state.language === 'zh' ? 'zh-CN' : 'en-US');
   }
 
   function compact(value) {
     const n = Math.round(value || 0);
     if (n < 1000) return String(n);
-    if (n < 10000) {
-      return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+    if (state.language === 'zh') {
+      if (n < 10000) return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+      return `${(n / 10000).toFixed(n >= 100000 ? 0 : 1).replace(/\.0$/, '')}万`;
     }
-    return `${(n / 10000).toFixed(n >= 100000 ? 0 : 1).replace(/\.0$/, '')}万`;
+    if (n < 1000000) {
+      return `${(n / 1000).toFixed(n >= 100000 ? 0 : 1).replace(/\.0$/, '')}k`;
+    }
+    return `${(n / 1000000).toFixed(n >= 10000000 ? 0 : 1).replace(/\.0$/, '')}M`;
   }
 
-  function heatColor(t) {
-    const clamped = Math.max(0, Math.min(1, t));
-    for (let i = 0; i < HEAT_STOPS.length - 1; i += 1) {
-      const [fromT, fromColor] = HEAT_STOPS[i];
-      const [toT, toColor] = HEAT_STOPS[i + 1];
-      if (clamped <= toT) {
-        const f = (clamped - fromT) / (toT - fromT);
-        return fromColor.map((channel, index) => Math.round(channel + (toColor[index] - channel) * f));
-      }
-    }
-    return HEAT_STOPS[HEAT_STOPS.length - 1][1];
-  }
-
-  function luminance(color) {
-    return (0.299 * color[0] + 0.587 * color[1] + 0.114 * color[2]) / 255;
+  function applyLanguage() {
+    state.language = state.language === 'zh' ? 'zh' : 'en';
+    document.documentElement.lang = state.language === 'zh' ? 'zh-CN' : 'en';
+    document.querySelectorAll('[data-i18n]').forEach((element) => {
+      const key = element.dataset.i18n;
+      if (key) element.textContent = t(key);
+    });
+    const rangeGroup = document.querySelector('.segmented');
+    if (rangeGroup) rangeGroup.setAttribute('aria-label', t('aria.range'));
+    if (refs.keyboard) refs.keyboard.setAttribute('aria-label', t('aria.keyboard'));
+    refs.languageSelect.setAttribute('aria-label', t('aria.language'));
+    document.querySelector('.stats').setAttribute('aria-label', t('aria.summary'));
+    hideTooltip();
   }
 
   function bridge(action) {
@@ -203,7 +341,7 @@
         keys.push({ ...item, x });
         x += item.width;
       }
-      return { height: row.height, keys };
+      return { keys };
     });
 
     refs.keyboard.replaceChildren();
@@ -256,11 +394,13 @@
     const total = Object.values(lastAgg.keys).reduce((sum, value) => sum + value, 0);
     const percentage = total > 0 ? (slot.value / total) * 100 : 0;
     const title = document.createElement('strong');
-    title.textContent = key.label.length === 1 ? `按键 ${key.label}` : key.label;
+    title.textContent = key.label.length === 1 ? t('tooltip.key', { key: key.label }) : key.label;
     const detail = document.createElement('span');
     detail.textContent = slot.value > 0
-      ? `${fullNumber(slot.value)} 次 · 占 ${percentage.toFixed(1)}%`
-      : '暂无记录';
+      ? (slot.value === 1
+        ? t('tooltip.pressOne', { percent: percentage.toFixed(1) })
+        : t('tooltip.presses', { count: fullNumber(slot.value), percent: percentage.toFixed(1) }))
+      : t('tooltip.none');
     refs.tooltip.replaceChildren(title, detail);
     refs.tooltip.hidden = false;
     positionTooltip(event);
@@ -297,9 +437,7 @@
   }
 
   function rangeLabel() {
-    if (state.range === '7d') return '近 7 天';
-    if (state.range === 'all') return '全部记录';
-    return '今日';
+    return t(`rangeLabel.${state.range}`);
   }
 
   function aggregate(dates) {
@@ -356,38 +494,54 @@
     const totalClicks = agg.left + agg.right + agg.other;
 
     refs.statKeys.textContent = fullNumber(totalKeys);
-    refs.statKeysSub.textContent = `${label} · ${distinctKeys} 个按键有记录`;
+    refs.statKeysSub.textContent = distinctKeys === 1
+      ? t('stats.keysSubOne', { range: label })
+      : t('stats.keysSubMany', { range: label, count: fullNumber(distinctKeys) });
 
     refs.statClicks.textContent = fullNumber(totalClicks);
     if (totalClicks === 0) {
-      refs.statClicksSub.textContent = `${label} · 暂无点击记录`;
+      refs.statClicksSub.textContent = t('stats.clicksSubNone', { range: label });
+    } else if (agg.other > 0) {
+      refs.statClicksSub.textContent = t('stats.clicksSubOther', {
+        range: label,
+        left: compact(agg.left),
+        right: compact(agg.right),
+        other: compact(agg.other),
+      });
     } else {
-      const parts = [`左 ${compact(agg.left)}`, `右 ${compact(agg.right)}`];
-      if (agg.other > 0) parts.push(`其他 ${compact(agg.other)}`);
-      refs.statClicksSub.textContent = `${label} · ${parts.join(' / ')}`;
+      refs.statClicksSub.textContent = t('stats.clicksSub', {
+        range: label,
+        left: compact(agg.left),
+        right: compact(agg.right),
+      });
     }
 
     const meters = agg.distance * 0.0002646;
     if (meters >= 1000) {
       refs.statDistance.textContent = (meters / 1000).toFixed(2);
-      refs.statDistanceUnit.textContent = '公里';
+      refs.statDistanceUnit.textContent = t('unit.km');
     } else if (meters >= 100) {
       refs.statDistance.textContent = meters.toFixed(0);
-      refs.statDistanceUnit.textContent = '米';
+      refs.statDistanceUnit.textContent = t('unit.m');
     } else {
       refs.statDistance.textContent = meters.toFixed(1);
-      refs.statDistanceUnit.textContent = '米';
+      refs.statDistanceUnit.textContent = t('unit.m');
     }
-    refs.statDistanceSub.textContent = `${label} · 滚轮 ${fullNumber(agg.scroll)} 次`;
+    refs.statDistanceSub.textContent = agg.scroll === 1
+      ? t('stats.scrollOne', { range: label })
+      : t('stats.scrollMany', { range: label, count: fullNumber(agg.scroll) });
 
     refs.statAPM.textContent = fullNumber(state.apm);
+    refs.statAPMUnit.textContent = t('unit.perMinute');
     refs.statAPMSub.textContent = state.status === 'paused'
-      ? '最近 60 秒 · 已暂停'
+      ? t('stats.speedPaused')
       : state.status === 'monitoring'
-        ? '最近 60 秒 · 实时'
-        : '最近 60 秒';
+        ? t('stats.speedLive')
+        : t('stats.speedIdle');
 
-    refs.keyboardMeta.textContent = `${label} · 共 ${fullNumber(totalKeys)} 次按键`;
+    refs.keyboardMeta.textContent = totalKeys === 1
+      ? t('meta.keyboardOne', { range: label })
+      : t('meta.keyboardMany', { range: label, count: fullNumber(totalKeys) });
   }
 
   function renderKeyboard(agg) {
@@ -407,48 +561,46 @@
       slot.countEl.textContent = value > 0 ? compact(value) : '';
       slot.el.classList.toggle('is-empty', value === 0);
 
-      if (value === 0) {
+      if (value === 0 || max === 0) {
         slot.el.style.background = '';
         slot.el.style.borderColor = '';
-        slot.el.style.color = '';
-        slot.el.style.boxShadow = '';
-        slot.el.classList.remove('accent');
+        slot.el.classList.remove('lit');
         continue;
       }
 
-      const t = Math.pow(value / max, 0.5);
-      const color = heatColor(Math.max(0.18, t));
-      const darkText = luminance(color) > 0.68;
-      slot.el.style.background = `linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,0) 58%), rgb(${color.join(',')})`;
-      slot.el.style.borderColor = `rgba(255,255,255,${(0.1 + t * 0.18).toFixed(3)})`;
-      slot.el.style.color = darkText ? 'rgba(30,19,9,.94)' : 'rgba(255,248,240,.95)';
-      slot.el.style.boxShadow = `inset 0 -1px 0 rgba(0,0,0,.16), 0 0 ${Math.round(t * 15)}px rgba(${color.join(',')},${(0.08 + t * 0.16).toFixed(3)})`;
-      slot.el.classList.toggle('accent', !darkText);
+      const ratio = Math.pow(value / max, 0.55);
+      const alpha = 0.12 + ratio * 0.8;
+      slot.el.style.background = `rgba(var(--heat-rgb), ${alpha.toFixed(3)})`;
+      slot.el.style.borderColor = `rgba(var(--heat-rgb), ${(0.18 + ratio * 0.45).toFixed(3)})`;
+      slot.el.classList.add('lit');
     }
   }
 
   function renderMouseViews(agg) {
     const moveSamples = Object.values(agg.move).reduce((sum, value) => sum + value, 0);
-    const moveHotspots = Object.keys(agg.move).length;
     const clicks = agg.left + agg.right + agg.other;
-    const clickHotspots = Object.keys(agg.click).length;
     const displayCount = Math.max(1, state.displays.length);
+    const displays = displayCount === 1
+      ? t('display.one')
+      : t('display.many', { count: fullNumber(displayCount) });
 
-    refs.mouseMeta.textContent = `${rangeLabel()} · ${displayCount} 块屏幕`;
-    refs.moveMeta.textContent = `${fullNumber(moveSamples)} 个采样点`;
-    refs.moveMeta.title = `覆盖 ${moveHotspots} 个网格区域`;
-    refs.clickMeta.textContent = `${fullNumber(clicks)} 次点击`;
-    refs.clickMeta.title = `覆盖 ${clickHotspots} 个网格区域`;
+    refs.mouseMeta.textContent = t('meta.mouse', { range: rangeLabel(), displays });
+    refs.moveMeta.textContent = moveSamples === 1
+      ? t('samples.one')
+      : t('samples.many', { count: fullNumber(moveSamples) });
+    refs.clickMeta.textContent = clicks === 1
+      ? t('clicks.one')
+      : t('clicks.many', { count: fullNumber(clicks) });
 
     drawHeatMap(refs.moveCanvas, refs.moveStage, refs.moveEmpty, agg.move, false);
     drawHeatMap(refs.clickCanvas, refs.clickStage, refs.clickEmpty, agg.click, true);
   }
 
   function emptyMessage(isClick) {
-    if (state.status === 'noPermission') return '授权“输入监控”后，鼠标轨迹会显示在这里';
-    if (state.status === 'waiting') return '等待权限生效后开始绘制轨迹';
-    if (state.status === 'paused') return '记录已暂停';
-    return isClick ? '点击鼠标，分布会显示在这里' : '移动鼠标，热力图会在这里生长';
+    if (state.status === 'noPermission') return t('empty.noPermission');
+    if (state.status === 'waiting') return t('empty.waiting');
+    if (state.status === 'paused') return t('empty.paused');
+    return isClick ? t('empty.click') : t('empty.move');
   }
 
   function roundedRect(ctx, x, y, width, height, radius) {
@@ -478,11 +630,71 @@
     return { ctx, width, height };
   }
 
+  function displayLabel(display) {
+    if (!display) return '';
+    if (display.kind === 'builtin') return t('display.builtin');
+    if (display.kind === 'main') return t('display.main');
+    if (display.kind === 'external') return t('display.external', { index: display.index || '' });
+    return display.label || '';
+  }
+
+  function boxBlur(source, cols, rows, radius) {
+    const temp = new Float32Array(source.length);
+    const out = new Float32Array(source.length);
+    const diameter = radius * 2 + 1;
+
+    for (let y = 0; y < rows; y += 1) {
+      const offset = y * cols;
+      for (let x = 0; x < cols; x += 1) {
+        let sum = 0;
+        for (let k = -radius; k <= radius; k += 1) {
+          const xx = Math.min(cols - 1, Math.max(0, x + k));
+          sum += source[offset + xx];
+        }
+        temp[offset + x] = sum / diameter;
+      }
+    }
+
+    for (let y = 0; y < rows; y += 1) {
+      for (let x = 0; x < cols; x += 1) {
+        let sum = 0;
+        for (let k = -radius; k <= radius; k += 1) {
+          const yy = Math.min(rows - 1, Math.max(0, y + k));
+          sum += temp[yy * cols + x];
+        }
+        out[y * cols + x] = sum / diameter;
+      }
+    }
+
+    return out;
+  }
+
+  function sampleField(field, cols, rows, x, y) {
+    const cx = Math.min(cols - 1, Math.max(0, x));
+    const cy = Math.min(rows - 1, Math.max(0, y));
+    const x0 = Math.floor(cx);
+    const y0 = Math.floor(cy);
+    const x1 = Math.min(cols - 1, x0 + 1);
+    const y1 = Math.min(rows - 1, y0 + 1);
+    const tx = cx - x0;
+    const ty = cy - y0;
+
+    const top = field[y0 * cols + x0] * (1 - tx) + field[y0 * cols + x1] * tx;
+    const bottom = field[y1 * cols + x0] * (1 - tx) + field[y1 * cols + x1] * tx;
+    return top * (1 - ty) + bottom * ty;
+  }
+
   function drawHeatMap(canvas, stage, emptyEl, grid, isClick) {
     const { ctx, width, height } = prepareCanvas(canvas, stage);
+    const styles = getComputedStyle(document.documentElement);
+    const mapBorder = styles.getPropertyValue('--map-border').trim() || 'rgba(0,0,0,.16)';
+    const mapBorderStrong = styles.getPropertyValue('--map-border-strong').trim() || mapBorder;
+    const mapFill = styles.getPropertyValue('--map-fill').trim() || 'transparent';
+    const mapText = styles.getPropertyValue('--tertiary').trim() || '#8a8a8e';
+    const heatRgb = styles.getPropertyValue('--heat-rgb').trim() || '255,149,0';
 
     const aspect = state.displayAspect > 0 ? state.displayAspect : 1.6;
-    const padding = 15;
+    const padding = 12;
     let fitWidth = width - padding * 2;
     let fitHeight = height - padding * 2;
     if (fitWidth / fitHeight > aspect) {
@@ -495,60 +707,87 @@
 
     const displays = state.displays.length > 0
       ? state.displays
-      : [{ x: 0, y: 0, w: 1, h: 1, label: '', main: true }];
+      : [{ x: 0, y: 0, w: 1, h: 1, kind: 'main', label: '', main: true }];
 
     for (const display of displays) {
       const x = fitX + display.x * fitWidth;
       const y = fitY + display.y * fitHeight;
       const w = display.w * fitWidth;
       const h = display.h * fitHeight;
-      roundedRect(ctx, x, y, w, h, 10);
-      ctx.fillStyle = 'rgba(255,255,255,.014)';
+      roundedRect(ctx, x, y, w, h, 7);
+      ctx.fillStyle = mapFill;
       ctx.fill();
     }
 
     ctx.save();
-    roundedRect(ctx, fitX, fitY, fitWidth, fitHeight, 10);
+    roundedRect(ctx, fitX, fitY, fitWidth, fitHeight, 7);
     ctx.clip();
 
-    ctx.fillStyle = 'rgba(255,255,255,.05)';
-    for (let x = fitX + 14; x < fitX + fitWidth; x += 26) {
-      for (let y = fitY + 14; y < fitY + fitHeight; y += 26) {
-        ctx.fillRect(Math.round(x), Math.round(y), 1, 1);
-      }
-    }
-
+    const cols = state.gridCols;
+    const rows = state.gridRows;
+    const field = new Float32Array(cols * rows);
     let max = 0;
-    for (const value of Object.values(grid)) {
+
+    for (const [cell, raw] of Object.entries(grid)) {
+      const [col, row] = cell.split(',').map(Number);
+      if (!Number.isFinite(col) || !Number.isFinite(row)) continue;
+      if (col < 0 || col >= cols || row < 0 || row >= rows) continue;
+      const value = Number(raw) || 0;
       if (value > max) max = value;
+      field[row * cols + col] += value;
     }
 
     if (max > 0) {
-      const heat = document.createElement('canvas');
-      heat.width = state.gridCols;
-      heat.height = state.gridRows;
-      const heatCtx = heat.getContext('2d');
-      heatCtx.clearRect(0, 0, heat.width, heat.height);
+      for (let index = 0; index < field.length; index += 1) {
+        field[index] /= max;
+      }
+      const smoothed = boxBlur(field, cols, rows, 1);
 
-      for (const [cell, raw] of Object.entries(grid)) {
-        const [col, row] = cell.split(',').map(Number);
-        if (!Number.isFinite(col) || !Number.isFinite(row)) continue;
-        if (col < 0 || col >= state.gridCols || row < 0 || row >= state.gridRows) continue;
-        const t = Math.pow((Number(raw) || 0) / max, 0.55);
-        const color = heatColor(Math.max(0.12, t));
-        heatCtx.fillStyle = `rgba(${color.join(',')},${(0.08 + t * 0.92).toFixed(3)})`;
-        heatCtx.fillRect(col, row, 1, 1);
+      let smoothMax = 0;
+      for (const value of smoothed) {
+        if (value > smoothMax) smoothMax = value;
+      }
+      if (smoothMax > 0) {
+        for (let index = 0; index < smoothed.length; index += 1) {
+          smoothed[index] /= smoothMax;
+        }
       }
 
-      ctx.globalCompositeOperation = 'lighter';
+      const heatParts = heatRgb.split(',').map((part) => Number(part.trim()));
+      const heatR = Number.isFinite(heatParts[0]) ? heatParts[0] : 255;
+      const heatG = Number.isFinite(heatParts[1]) ? heatParts[1] : 149;
+      const heatB = Number.isFinite(heatParts[2]) ? heatParts[2] : 0;
+
+      const scale = 6;
+      const heat = document.createElement('canvas');
+      heat.width = cols * scale;
+      heat.height = rows * scale;
+      const heatCtx = heat.getContext('2d');
+      const image = heatCtx.createImageData(heat.width, heat.height);
+      const data = image.data;
+      let pixel = 0;
+
+      for (let py = 0; py < heat.height; py += 1) {
+        const fy = (py + 0.5) / scale - 0.5;
+        for (let px = 0; px < heat.width; px += 1) {
+          const fx = (px + 0.5) / scale - 0.5;
+          let value = sampleField(smoothed, cols, rows, fx, fy);
+          value = (value - 0.08) / 0.92;
+          value = Math.max(0, Math.min(1, value));
+          const alpha = Math.pow(value, 1.7) * 0.9;
+          data[pixel] = heatR;
+          data[pixel + 1] = heatG;
+          data[pixel + 2] = heatB;
+          data[pixel + 3] = Math.round(alpha * 255);
+          pixel += 4;
+        }
+      }
+
+      heatCtx.putImageData(image, 0, 0);
       ctx.imageSmoothingEnabled = true;
-      if ('filter' in ctx) ctx.filter = 'blur(9px)';
-      ctx.drawImage(heat, fitX, fitY, fitWidth, fitHeight);
-      if ('filter' in ctx) ctx.filter = 'blur(1.5px)';
-      ctx.globalAlpha = 0.7;
-      ctx.drawImage(heat, fitX, fitY, fitWidth, fitHeight);
       ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = 'source-over';
+      if ('filter' in ctx) ctx.filter = 'blur(0.5px)';
+      ctx.drawImage(heat, fitX, fitY, fitWidth, fitHeight);
       if ('filter' in ctx) ctx.filter = 'none';
     }
 
@@ -560,16 +799,17 @@
       const y = fitY + display.y * fitHeight;
       const w = display.w * fitWidth;
       const h = display.h * fitHeight;
-      roundedRect(ctx, x + 0.5, y + 0.5, w - 1, h - 1, 10);
-      ctx.strokeStyle = display.main ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.1)';
+      roundedRect(ctx, x + 0.5, y + 0.5, w - 1, h - 1, 7);
+      ctx.strokeStyle = display.main ? mapBorderStrong : mapBorder;
       ctx.lineWidth = 1;
-      ctx.setLineDash([3, 4]);
+      ctx.setLineDash([3, 3]);
       ctx.stroke();
       ctx.setLineDash([]);
 
-      if (display.label && w > 120 && h > 46) {
-        ctx.fillStyle = 'rgba(255,255,255,.33)';
-        ctx.fillText(display.label, x + 10, y + 16);
+      const label = displayLabel(display);
+      if (label && w > 110 && h > 40) {
+        ctx.fillStyle = mapText;
+        ctx.fillText(label, x + 8, y + 14);
       }
     }
 
@@ -581,44 +821,44 @@
   }
 
   function renderStatus() {
-    refs.statusPill.className = `status-pill ${state.status}`;
+    const statusClass = state.status === 'monitoring' ? 'recording' : state.status;
+    refs.statusPill.className = `status ${statusClass}`;
     refs.statusPill.classList.toggle(
       'static',
       state.status === 'connecting' || state.status === 'waiting'
     );
-    refs.statusText.textContent = STATUS_TEXT[state.status] || '连接中';
+    refs.statusText.textContent = t(`status.${statusClass}`);
 
     const showBanner = state.status === 'noPermission' || state.status === 'waiting';
     refs.banner.hidden = !showBanner;
     document.body.classList.toggle('has-banner', showBanner);
+
     if (showBanner) {
       if (state.status === 'waiting') {
-        refs.bannerTitle.textContent = '等待监听生效';
-        refs.bannerText.textContent = '已获得权限，但系统尚未允许事件监听。重启应用后通常会生效。';
-        refs.bannerPrimary.textContent = '重启应用';
-        refs.bannerSecondary.hidden = false;
-        refs.bannerSecondary.textContent = '打开系统设置';
+        refs.bannerTitle.textContent = t('permission.waiting.title');
+        refs.bannerText.textContent = t('permission.waiting.text');
+        refs.bannerPrimary.textContent = t('permission.restart');
       } else {
-        refs.bannerTitle.textContent = '需要“输入监控”权限';
-        refs.bannerText.textContent = 'macOS 只允许经你授权的应用读取全局按键与鼠标事件。授权后会自动开始记录。';
-        refs.bannerPrimary.textContent = '授予权限';
-        refs.bannerSecondary.hidden = false;
-        refs.bannerSecondary.textContent = '打开系统设置';
+        refs.bannerTitle.textContent = t('permission.title');
+        refs.bannerText.textContent = t('permission.text');
+        refs.bannerPrimary.textContent = t('permission.grant');
       }
+      refs.bannerSecondary.hidden = false;
+      refs.bannerSecondary.textContent = t('permission.openSettings');
     }
-
-    const footer = {
-      connecting: '等待连接',
-      monitoring: '实时更新中',
-      paused: '已暂停记录',
-      noPermission: '未开始记录',
-      waiting: '等待权限生效',
-    };
-    refs.footerState.textContent = footer[state.status] || '实时更新中';
   }
 
   function ingest(payload) {
     if (!payload || typeof payload !== 'object') return;
+    if (payload.language === 'zh' || payload.language === 'en') {
+      if (state.language !== payload.language) {
+        state.language = payload.language;
+        applyLanguage();
+      }
+    }
+    if (['system', 'en', 'zh'].includes(payload.languagePreference)) {
+      refs.languageSelect.value = payload.languagePreference;
+    }
     if (payload.full) {
       state.days = payload.days || {};
     } else if (payload.days) {
@@ -638,6 +878,9 @@
   }
 
   function bindUI() {
+    refs.languageSelect.addEventListener('change', () => {
+      bridge(`language:${refs.languageSelect.value}`);
+    });
     document.querySelectorAll('[data-range]').forEach((button) => {
       button.addEventListener('click', () => {
         state.range = button.dataset.range;
@@ -669,6 +912,16 @@
     window.addEventListener('scroll', hideTooltip, true);
     refs.keyboardWrap.addEventListener('scroll', hideTooltip, { passive: true });
 
+    const colorScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    const redraw = () => {
+      if (lastAgg) renderMouseViews(lastAgg);
+    };
+    if (colorScheme.addEventListener) {
+      colorScheme.addEventListener('change', redraw);
+    } else if (colorScheme.addListener) {
+      colorScheme.addListener(redraw);
+    }
+
     const resizeObserver = new ResizeObserver(() => {
       if (resizeFrame) cancelAnimationFrame(resizeFrame);
       resizeFrame = requestAnimationFrame(() => {
@@ -683,6 +936,7 @@
   }
 
   function boot() {
+    applyLanguage();
     buildKeyboard();
     bindUI();
     window.inputHeatRender = ingest;

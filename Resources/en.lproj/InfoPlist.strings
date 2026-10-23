@@ -1,0 +1,1 @@
+"NSInputMonitoringUsageDescription" = "KeyGlow counts key presses and mouse activity locally to build heatmaps. Only counts and coordinates are stored, never input content.";

@@ -57,48 +57,79 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             button.toolTip = "KeyGlow"
         }
 
+        statusItem = item
+        rebuildMenu()
+    }
+
+    private func rebuildMenu() {
+        let loc = Localization.shared
         let menu = NSMenu()
         menu.delegate = self
 
-        let open = NSMenuItem(title: "打开 KeyGlow", action: #selector(openDashboard), keyEquivalent: "o")
+        let open = NSMenuItem(title: loc.text("menu.open"), action: #selector(openDashboard), keyEquivalent: "o")
         open.target = self
         menu.addItem(open)
         menu.addItem(.separator())
 
-        let today = NSMenuItem(title: "今日：0 次按键", action: nil, keyEquivalent: "")
+        let today = NSMenuItem(title: "", action: nil, keyEquivalent: "")
         today.isEnabled = false
         menu.addItem(today)
         todayItem = today
 
-        let pause = NSMenuItem(title: "暂停记录", action: #selector(togglePause), keyEquivalent: "p")
+        let pause = NSMenuItem(
+            title: loc.text("menu.pause"),
+            action: #selector(togglePause),
+            keyEquivalent: "p"
+        )
         pause.target = self
         menu.addItem(pause)
         pauseItem = pause
 
         menu.addItem(.separator())
 
-        let permission = NSMenuItem(title: "输入监控权限…", action: #selector(openPermissionSettings), keyEquivalent: "")
+        let permission = NSMenuItem(
+            title: loc.text("menu.permission.off"),
+            action: #selector(openPermissionSettings),
+            keyEquivalent: ""
+        )
         permission.target = self
         menu.addItem(permission)
         permissionItem = permission
 
-        let login = NSMenuItem(title: "登录时启动", action: #selector(toggleLoginItem), keyEquivalent: "")
+        let login = NSMenuItem(title: loc.text("menu.login"), action: #selector(toggleLoginItem), keyEquivalent: "")
         login.target = self
         menu.addItem(login)
         loginItem = login
 
-        let folder = NSMenuItem(title: "打开数据文件夹", action: #selector(openDataFolder), keyEquivalent: "")
+        let folder = NSMenuItem(title: loc.text("menu.dataFolder"), action: #selector(openDataFolder), keyEquivalent: "")
         folder.target = self
         menu.addItem(folder)
 
         menu.addItem(.separator())
 
-        let quit = NSMenuItem(title: "退出 KeyGlow", action: #selector(quitApp), keyEquivalent: "q")
+        let language = NSMenuItem(title: loc.text("menu.language"), action: nil, keyEquivalent: "")
+        let languageMenu = NSMenu()
+        for choice in AppLanguage.allCases {
+            let item = NSMenuItem(
+                title: loc.text("language.\(choice.rawValue)"),
+                action: #selector(selectLanguage(_:)),
+                keyEquivalent: ""
+            )
+            item.target = self
+            item.representedObject = choice.rawValue
+            item.state = loc.preference == choice ? .on : .off
+            languageMenu.addItem(item)
+        }
+        language.submenu = languageMenu
+        menu.addItem(language)
+
+        menu.addItem(.separator())
+
+        let quit = NSMenuItem(title: loc.text("menu.quit"), action: #selector(quitApp), keyEquivalent: "q")
         quit.target = self
         menu.addItem(quit)
 
         self.menu = menu
-        statusItem = item
         refreshMenuState()
     }
 
@@ -127,6 +158,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         pushDashboard(full: false)
     }
 
+    @objc private func selectLanguage(_ sender: NSMenuItem) {
+        guard
+            let raw = sender.representedObject as? String,
+            let language = AppLanguage(rawValue: raw)
+        else { return }
+
+        changeLanguage(language)
+    }
+
+    private func changeLanguage(_ language: AppLanguage) {
+        let loc = Localization.shared
+        guard loc.preference != language else { return }
+
+        loc.setPreference(language)
+        rebuildMenu()
+        updateStatusItemTooltip()
+        pushDashboard(full: true)
+    }
+
     @objc private func openPermissionSettings() {
         guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent") else {
             return
@@ -148,11 +198,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             }
         } catch {
             NSApp.activate(ignoringOtherApps: true)
+            let loc = Localization.shared
             let alert = NSAlert()
-            alert.messageText = "无法设置登录时启动"
-            alert.informativeText = "请先把「KeyGlow」拖进「应用程序」文件夹，再到系统设置 › 通用 › 登录项中添加。\n\n\(error.localizedDescription)"
+            alert.messageText = loc.text("alert.login.title")
+            alert.informativeText = loc.text("alert.login.body", error.localizedDescription)
             alert.alertStyle = .warning
-            alert.addButton(withTitle: "好")
+            alert.addButton(withTitle: loc.text("alert.ok"))
             alert.runModal()
         }
         refreshMenuState()
@@ -188,6 +239,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             togglePause()
         case "openDataFolder":
             openDataFolder()
+        case "language:system":
+            changeLanguage(.system)
+        case "language:en":
+            changeLanguage(.en)
+        case "language:zh":
+            changeLanguage(.zh)
         case "restartApp":
             relaunch()
         default:
@@ -199,6 +256,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         var payload = store.payload(full: full)
         payload["status"] = monitor.status
         payload["paused"] = monitor.isPaused
+        payload["language"] = Localization.shared.languageCode
+        payload["languagePreference"] = Localization.shared.preference.rawValue
         return payload
     }
 
@@ -250,34 +309,45 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func refreshMenuState() {
+        let loc = Localization.shared
         refreshTodayItem()
-        pauseItem?.state = monitor.isPaused ? .on : .off
+        pauseItem?.title = loc.text(monitor.isPaused ? "menu.resume" : "menu.pause")
         if #available(macOS 13.0, *) {
             loginItem?.state = SMAppService.mainApp.status == .enabled ? .on : .off
         }
         switch monitor.status {
-        case "monitoring": permissionItem?.title = "输入监控权限：已开启"
-        case "paused": permissionItem?.title = "输入监控权限：已开启"
-        case "waiting": permissionItem?.title = "输入监控权限：等待生效"
-        default: permissionItem?.title = "输入监控权限：未开启…"
+        case "monitoring": permissionItem?.title = loc.text("menu.permission.on")
+        case "paused": permissionItem?.title = loc.text("menu.permission.on")
+        case "waiting": permissionItem?.title = loc.text("menu.permission.waiting")
+        default: permissionItem?.title = loc.text("menu.permission.off")
         }
     }
 
     private func refreshTodayItem() {
         let summary = store.todaySummary
-        todayItem?.title = "今日：\(formatted(summary.keys)) 次按键 · \(formatted(summary.clicks)) 次点击"
+        let loc = Localization.shared
+        todayItem?.title = loc.text(
+            "menu.today",
+            formatted(summary.keys),
+            formatted(summary.clicks)
+        )
     }
 
     private func updateStatusItemTooltip() {
         let summary = store.todaySummary
-        let state: String
+        let loc = Localization.shared
+        let stateKey: String
         switch monitor.status {
-        case "monitoring": state = "正在记录"
-        case "paused": state = "已暂停"
-        case "waiting": state = "等待权限生效"
-        default: state = "未授权"
+        case "monitoring": stateKey = "state.recording"
+        case "paused": stateKey = "state.paused"
+        case "waiting": stateKey = "state.waiting"
+        default: stateKey = "state.noPermission"
         }
-        statusItem?.button?.toolTip = "KeyGlow · \(state) · 今日 \(formatted(summary.keys)) 次按键"
+        statusItem?.button?.toolTip = loc.text(
+            "tooltip.format",
+            loc.text(stateKey),
+            formatted(summary.keys)
+        )
     }
 
     private func formatted(_ value: Int) -> String {

@@ -1,0 +1,1 @@
+"NSInputMonitoringUsageDescription" = "KeyGlow 在本机统计按键次数和鼠标活动以生成热力图，仅保存次数和坐标，不记录输入内容。";

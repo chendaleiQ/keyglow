@@ -3,7 +3,12 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleDevelopmentRegion</key>
-    <string>zh_CN</string>
+    <string>en</string>
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>en</string>
+        <string>zh-Hans</string>
+    </array>
     <key>CFBundleDisplayName</key>
     <string>KeyGlow</string>
     <key>CFBundleExecutable</key>
@@ -17,17 +22,19 @@
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.1.0</string>
+    <string>1.2.0</string>
     <key>CFBundleVersion</key>
-    <string>2</string>
+    <string>3</string>
     <key>LSMinimumSystemVersion</key>
     <string>13.0</string>
     <key>LSUIElement</key>
     <true/>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright © 2026 chendaleiQ</string>
     <key>NSInputMonitoringUsageDescription</key>
-    <string>用于统计按键次数与鼠标活动并生成本地热力图。仅保存按键次数和鼠标坐标，不记录任何输入内容。</string>
+    <string>KeyGlow counts key presses and mouse activity locally to build heatmaps. Only counts and coordinates are stored, never input content.</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
 </dict>
