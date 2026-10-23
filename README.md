@@ -1,5 +1,7 @@
 # KeyGlow
 
+[![Build](https://github.com/chendaleiQ/keyglow/actions/workflows/build.yml/badge.svg)](https://github.com/chendaleiQ/keyglow/actions/workflows/build.yml)
+
 A local-first macOS menu bar app that turns keyboard and mouse activity into live heatmaps.
 
 ![KeyGlow dashboard preview](docs/preview.png)
@@ -19,16 +21,25 @@ KeyGlow counts key presses and pointer activity on your Mac and renders them as 
 
 macOS 13 or later.
 
+## Prebuilt builds
+
+GitHub Actions builds a universal app (Apple Silicon + Intel) on every push and pull request. Builds from tags matching `v*` are published automatically to [Releases](https://github.com/chendaleiQ/keyglow/releases).
+
+Release builds are ad-hoc signed and not notarized. On first launch, right-click `KeyGlow.app` and choose **Open** (or run `xattr -cr /Applications/KeyGlow.app`).
+
 ## Build from source
 
 ```bash
 git clone https://github.com/chendaleiQ/keyglow.git
 cd keyglow
-./build.sh
+./build.sh                    # build for the current Mac architecture
+# UNIVERSAL=1 ./build.sh      # optional: build arm64 + x86_64 universal app
 open dist/KeyGlow.app
 ```
 
 The build script compiles the Swift sources, assembles `dist/KeyGlow.app`, and applies an ad-hoc signature. There is no Xcode project or package dependency to install.
+
+The workflow in `.github/workflows/build.yml` builds the universal app, verifies the bundle, uploads a zip artifact, and publishes a GitHub Release when a `v*` tag is pushed.
 
 ## Permissions
 
@@ -99,5 +110,12 @@ Licensed under the [Apache License 2.0](LICENSE). Copyright 2026 chendaleiQ.
 - 纯 Swift + AppKit + WKWebView，无第三方依赖。
 - 监听通过 `CGEvent.tapCreate`（`listenOnly`）实现；鼠标移动不拦截，不改写系统输入。
 - 重新构建会改变 ad-hoc 签名，macOS 可能要求重新授予「输入监控」权限。若打算长期使用，建议先移入 `/Applications` 再授权，之后不要随意重签。
+- `./build.sh` 默认构建当前架构；`UNIVERSAL=1 ./build.sh` 会构建 Apple Silicon + Intel 通用版。
+
+## 自动构建
+
+- GitHub Actions 会在每次 push 和 pull request 时构建 macOS 通用版，并在 Actions 页面提供 zip 产物。
+- 推送 `v*` 标签（例如 `v1.1.0`）会自动创建 GitHub Release 并附上通用版 zip。
+- Release 中的 App 是 ad-hoc 签名、未公证；首次打开请右键选择「打开」，或执行 `xattr -cr /Applications/KeyGlow.app`。
 
 需要 macOS 13+。
