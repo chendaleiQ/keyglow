@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KeyGlow</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="drag-grip" aria-hidden="true"></div>
+  <div class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2.4" y="5.8" width="19.2" height="12.4" rx="3.2"></rect>
+            <path d="M6.1 9.9h.01M9.1 9.9h.01M12 9.9h.01M14.9 9.9h.01M17.8 9.9h.01M7.7 13.8h8.6"></path>
+          </svg>
+        </div>
+        <div class="brand-copy">
+          <h1>KeyGlow</h1>
+          <p>按键与鼠标的本地活动视图 <span class="sep">·</span> 不记录任何输入内容</p>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="segmented" role="group" aria-label="时间范围">
+          <button type="button" data-range="today" class="active">今日</button>
+          <button type="button" data-range="7d">近 7 天</button>
+          <button type="button" data-range="all">全部</button>
+        </div>
+        <button type="button" class="status-pill" id="statusPill" aria-live="polite">
+          <span class="status-dot"></span>
+          <span id="statusText">连接中</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="banner" id="permissionBanner" hidden>
+      <div class="banner-symbol" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="10.5" width="14" height="9.5" rx="2.4"></rect>
+          <path d="M8.2 10.5V7.8a3.8 3.8 0 0 1 7.6 0v2.7"></path>
+        </svg>
+      </div>
+      <div class="banner-copy">
+        <strong id="bannerTitle">需要“输入监控”权限</strong>
+        <p id="bannerText">macOS 只允许经你授权的应用读取全局按键与鼠标事件。授权后会自动开始记录。</p>
+      </div>
+      <div class="banner-actions">
+        <button type="button" class="button ghost" id="bannerSecondary">打开系统设置</button>
+        <button type="button" class="button primary" id="bannerPrimary">授予权限</button>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="活动概览">
+      <article class="stat-card">
+        <div class="stat-head">
+          <span>按键次数</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="3" y="6.5" width="18" height="11" rx="2.5"></rect><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M8 13.8h8"></path></svg>
+        </div>
+        <div class="stat-value" id="statKeys">0</div>
+        <div class="stat-sub" id="statKeysSub">今日</div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-head">
+          <span>鼠标点击</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2v7.1"></path><path d="M12 3.2a6.8 6.8 0 0 0-6.8 6.8v4a6.8 6.8 0 0 0 13.6 0v-4A6.8 6.8 0 0 0 12 3.2Z"></path></svg>
+        </div>
+        <div class="stat-value" id="statClicks">0</div>
+        <div class="stat-sub" id="statClicksSub">今日</div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-head">
+          <span>鼠标移动</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 17.5c4-1 4.4-10 8.5-10s4.5 6 8.5 5"></path><path d="M3.5 7v10h10"></path></svg>
+        </div>
+        <div class="stat-value"><span id="statDistance">0</span><span class="unit" id="statDistanceUnit">米</span></div>
+        <div class="stat-sub" id="statDistanceSub">今日</div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-head">
+          <span>当前速度</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12h3l2.2-5.5 4 11L15 12h5.5"></path></svg>
+        </div>
+        <div class="stat-value"><span id="statAPM">0</span><span class="unit">键/分</span></div>
+        <div class="stat-sub" id="statAPMSub">最近 60 秒</div>
+      </article>
+    </section>
+
+    <section class="panel keyboard-panel" id="keyboardPanel">
+      <div class="panel-head">
+        <div>
+          <h2>键盘热力图</h2>
+          <p id="keyboardMeta">读取中…</p>
+        </div>
+        <div class="heat-legend" aria-hidden="true">
+          <span>少</span>
+          <i class="legend-gradient"></i>
+          <span>多</span>
+        </div>
+      </div>
+      <div class="keyboard-wrap">
+        <div class="keyboard" id="keyboard" aria-label="键盘按键次数热力图"></div>
+      </div>
+    </section>
+
+    <section class="panel mouse-panel" id="mousePanel">
+      <div class="panel-head">
+        <div>
+          <h2>鼠标热力图</h2>
+          <p id="mouseMeta">读取中…</p>
+        </div>
+      </div>
+      <div class="mouse-split">
+        <div class="mouse-view">
+          <div class="mouse-view-head">
+            <div class="view-title">
+              <span class="view-dot move"></span>
+              <strong>移动密度</strong>
+              <span>停留越久，颜色越亮</span>
+            </div>
+            <span class="view-value" id="moveMeta">0 个采样点</span>
+          </div>
+          <div class="mouse-stage" id="moveStage">
+            <canvas id="moveCanvas"></canvas>
+            <div class="mouse-empty" id="moveEmpty">移动鼠标，热力图会在这里生长</div>
+          </div>
+        </div>
+        <div class="mouse-view">
+          <div class="mouse-view-head">
+            <div class="view-title">
+              <span class="view-dot click"></span>
+              <strong>点击分布</strong>
+              <span>高频点击位置</span>
+            </div>
+            <span class="view-value" id="clickMeta">0 次点击</span>
+          </div>
+          <div class="mouse-stage" id="clickStage">
+            <canvas id="clickCanvas"></canvas>
+            <div class="mouse-empty" id="clickEmpty">点击鼠标，分布会显示在这里</div>
+          </div>
+        </div>
+      </div>
+      <div class="mouse-foot">
+        <span>双视图均按屏幕坐标映射 <span class="sep">·</span> 多显示器自动合并</span>
+        <span class="heat-legend" aria-hidden="true">
+          <span>少</span>
+          <i class="legend-gradient"></i>
+          <span>多</span>
+        </span>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <span class="foot-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2.4"></rect><path d="M8.2 10.5V7.8a3.8 3.8 0 0 1 7.6 0v2.7"></path></svg>
+        仅在本机保存按键次数与鼠标坐标
+      </span>
+      <button type="button" class="text-button" id="openDataFolder">打开数据文件夹</button>
+      <span class="foot-state" id="footerState">实时更新中</span>
+    </footer>
+  </div>
+
+  <div class="tooltip" id="tooltip" hidden></div>
+  <script src="dashboard.js"></script>
+</body>
+</html>
