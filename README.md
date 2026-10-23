@@ -61,7 +61,7 @@ Rebuilding changes the ad-hoc signature, so macOS may require you to grant Input
 
 [GitHub Actions](.github/workflows/build.yml) builds a universal app on pushes, pull requests, and manual runs. It validates the bundle, both architectures, and code signature, then uploads a versioned ZIP and SHA-256 checksum as a build artifact.
 
-Pushing a `v*` tag publishes the same files to a GitHub Release. The tag must match `CFBundleShortVersionString` in `Info.plist` (for example, version `1.2.0` requires tag `v1.2.0`). Publishing requires the repository's Actions workflow permissions to allow release writes.
+After a successful build on `main`, Actions reads `CFBundleShortVersionString` from `Info.plist`, creates the matching tag (for example, `v1.2.0`), and publishes the ZIP and checksum to a GitHub Release. Published versions are skipped; increase the version in `Info.plist` for the next release. Existing tags are never moved. Manual `v*` tag pushes are also supported and must match the app version. Publishing requires the repository's Actions workflow permissions to allow release writes.
 
 ## Platform and license
 

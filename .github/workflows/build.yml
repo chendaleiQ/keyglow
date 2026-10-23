@@ -52,31 +52,65 @@ jobs:
           retention-days: 30
 
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     needs: build
     runs-on: ubuntu-latest
+    concurrency:
+      group: keyglow-release
+      cancel-in-progress: false
     permissions:
       contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare version release
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VERSION=$(python3 -c 'import plistlib; print(plistlib.load(open("Info.plist", "rb"))["CFBundleShortVersionString"])')
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::Invalid app version: $VERSION"; exit 1; }
+          TAG="v${VERSION}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_REF" == refs/tags/* && "$GITHUB_REF_NAME" != "$TAG" ]]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match app version $TAG"
+            exit 1
+          fi
+          if DRAFT=$(gh release view "$TAG" --json isDraft --jq '.isDraft' 2>/dev/null); then
+            if [[ "$DRAFT" == false ]]; then
+              echo "Release $TAG already published; bump Info.plist for the next release." >> "$GITHUB_STEP_SUMMARY"
+              echo "publish=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+          if git show-ref --verify --quiet "refs/tags/$TAG"; then
+            if [[ "$(git rev-parse "$TAG^{commit}")" != "$GITHUB_SHA" ]]; then
+              echo "::error::Existing tag $TAG points to another commit; refusing to replace it."
+              exit 1
+            fi
+          fi
+          echo "publish=true" >> "$GITHUB_OUTPUT"
 
       - name: Download universal build
+        if: steps.version.outputs.publish == 'true'
         uses: actions/download-artifact@v4
         with:
           name: KeyGlow-macos-universal
           path: dist
 
       - name: Publish GitHub Release
+        if: steps.version.outputs.publish == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          VERSION=$(python3 -c 'import plistlib; print(plistlib.load(open("Info.plist", "rb"))["CFBundleShortVersionString"])')
-          if [[ "v${VERSION}" != "${GITHUB_REF_NAME}" ]]; then
-            echo "::error::Tag ${GITHUB_REF_NAME} does not match app version v${VERSION}"
-            exit 1
-          fi
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.tag }}"
           cat > release-notes.md <<EOF
           KeyGlow ${VERSION} — macOS 13+ (Apple Silicon + Intel).
 
@@ -90,10 +124,12 @@ jobs:
           EOF
           ASSET="dist/KeyGlow-${VERSION}-macos-universal.zip"
           (cd dist && shasum -a 256 -c "KeyGlow-${VERSION}-macos-universal.zip.sha256")
-          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
-            gh release upload "${GITHUB_REF_NAME}" "$ASSET" "${ASSET}.sha256" --clobber
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ASSET" "${ASSET}.sha256" --clobber
+            gh release edit "$TAG" --draft=false --title "KeyGlow $TAG" --notes-file release-notes.md
           else
-            gh release create "${GITHUB_REF_NAME}" "$ASSET" "${ASSET}.sha256" \
-              --title "KeyGlow ${GITHUB_REF_NAME}" \
+            gh release create "$TAG" "$ASSET" "${ASSET}.sha256" \
+              --target "$GITHUB_SHA" \
+              --title "KeyGlow $TAG" \
               --notes-file release-notes.md
           fi

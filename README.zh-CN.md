@@ -61,7 +61,7 @@ UNIVERSAL=1 ./build.sh
 
 [GitHub Actions](.github/workflows/build.yml) 在 push、pull request 和手动触发时构建通用版，检查应用包、双架构和签名，并上传带版本号的 ZIP 及 SHA-256 校验文件。
 
-推送 `v*` 标签时，会将相同文件发布到 GitHub Release。标签必须与 `Info.plist` 中的 `CFBundleShortVersionString` 一致，例如版本 `1.2.0` 对应标签 `v1.2.0`。发布需要仓库的 Actions 工作流权限允许写入 Release。
+推送到 `main` 且构建通过后，Actions 会读取 `Info.plist` 中的 `CFBundleShortVersionString`，自动创建对应标签（例如 `v1.2.0`），并将 ZIP 和校验文件发布到 GitHub Release。已发布版本自动跳过；发布下一版前请更新 `Info.plist` 的版本号。已有标签不会被移动。仍支持手动推送与应用版本一致的 `v*` 标签。发布需要仓库的 Actions 工作流权限允许写入 Release。
 
 ## 平台与许可
 
