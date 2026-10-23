@@ -38,16 +38,15 @@ jobs:
           lipo dist/KeyGlow.app/Contents/MacOS/InputHeat -verify_arch x86_64
           test -f dist/KeyGlow.app/Contents/Resources/dashboard.js
           test -f dist/KeyGlow.app/Contents/Resources/dashboard.css
-          ditto -c -k --keepParent dist/KeyGlow.app "dist/KeyGlow-${VERSION}-macos-universal.zip"
-          (cd dist && shasum -a 256 "KeyGlow-${VERSION}-macos-universal.zip" > "KeyGlow-${VERSION}-macos-universal.zip.sha256")
+          ./package.sh
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: KeyGlow-macos-universal
           path: |
-            dist/KeyGlow-*-macos-universal.zip
-            dist/KeyGlow-*-macos-universal.zip.sha256
+            dist/KeyGlow-*-macos-universal.dmg
+            dist/KeyGlow-*-macos-universal.dmg.sha256
           if-no-files-found: error
           retention-days: 30
 
@@ -114,7 +113,7 @@ jobs:
           cat > release-notes.md <<EOF
           KeyGlow ${VERSION} — macOS 13+ (Apple Silicon + Intel).
 
-          Download the ZIP, unzip it, and move KeyGlow.app to Applications.
+          Open the DMG and drag KeyGlow.app to the Applications folder.
           This build is ad-hoc signed and not notarized. macOS may require
           System Settings → Privacy & Security → Open Anyway on first launch.
 
@@ -122,8 +121,8 @@ jobs:
           English and Simplified Chinese follow your device language by default.
           Only activity counts and pointer grids are stored locally.
           EOF
-          ASSET="dist/KeyGlow-${VERSION}-macos-universal.zip"
-          (cd dist && shasum -a 256 -c "KeyGlow-${VERSION}-macos-universal.zip.sha256")
+          ASSET="dist/KeyGlow-${VERSION}-macos-universal.dmg"
+          (cd dist && shasum -a 256 -c "KeyGlow-${VERSION}-macos-universal.dmg.sha256")
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$ASSET" "${ASSET}.sha256" --clobber
             gh release edit "$TAG" --draft=false --title "KeyGlow $TAG" --notes-file release-notes.md

@@ -20,7 +20,7 @@
 
 ## 安装
 
-从 [Releases](https://github.com/chendaleiQ/keyglow/releases) 下载 Apple Silicon + Intel 通用版，解压后将 **KeyGlow.app** 移入「应用程序」。开发版可在 [Actions](https://github.com/chendaleiQ/keyglow/actions/workflows/build.yml) 下载 ZIP 构建产物。
+从 [Releases](https://github.com/chendaleiQ/keyglow/releases) 下载 Apple Silicon + Intel 通用版 DMG，打开后将 **KeyGlow.app** 拖入「应用程序」。开发版可在 [Actions](https://github.com/chendaleiQ/keyglow/actions/workflows/build.yml) 下载构建产物压缩包，其中包含 DMG。
 
 应用使用 ad-hoc 签名，尚未经过 Apple 公证。首次启动可能被 macOS 拦截；确认下载来自本仓库后，可在「系统设置 → 隐私与安全性」中选择「仍要打开」（如系统提供该选项）。
 
@@ -53,15 +53,16 @@ open dist/KeyGlow.app
 
 ```sh
 UNIVERSAL=1 ./build.sh
+./package.sh  # 生成含「应用程序」快捷入口的 DMG
 ```
 
 重新构建会改变 ad-hoc 签名，macOS 可能要求重新授予「输入监控」权限。
 
 ## 自动构建
 
-[GitHub Actions](.github/workflows/build.yml) 在 push、pull request 和手动触发时构建通用版，检查应用包、双架构和签名，并上传带版本号的 ZIP 及 SHA-256 校验文件。
+[GitHub Actions](.github/workflows/build.yml) 在 push、pull request 和手动触发时构建通用版，检查应用包、双架构和签名，并上传带版本号的 DMG 及 SHA-256 校验文件。
 
-推送到 `main` 且构建通过后，Actions 会读取 `Info.plist` 中的 `CFBundleShortVersionString`，自动创建对应标签（例如 `v1.2.0`），并将 ZIP 和校验文件发布到 GitHub Release。已发布版本自动跳过；发布下一版前请更新 `Info.plist` 的版本号。已有标签不会被移动。仍支持手动推送与应用版本一致的 `v*` 标签。发布需要仓库的 Actions 工作流权限允许写入 Release。
+推送到 `main` 且构建通过后，Actions 会读取 `Info.plist` 中的 `CFBundleShortVersionString`，自动创建对应标签（例如 `v1.2.0`），并将 DMG 和校验文件发布到 GitHub Release。已发布版本自动跳过；发布下一版前请更新 `Info.plist` 的版本号。已有标签不会被移动。仍支持手动推送与应用版本一致的 `v*` 标签。发布需要仓库的 Actions 工作流权限允许写入 Release。
 
 ## 平台与许可
 

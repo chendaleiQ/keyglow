@@ -20,7 +20,7 @@ A small macOS menu bar app for keyboard and mouse activity. See which keys you u
 
 ## Install
 
-Download a universal build for Apple Silicon and Intel from [Releases](https://github.com/chendaleiQ/keyglow/releases), unzip it, and move **KeyGlow.app** to **Applications**. Development builds are available as ZIP artifacts under [Actions](https://github.com/chendaleiQ/keyglow/actions/workflows/build.yml).
+Download the universal DMG for Apple Silicon and Intel from [Releases](https://github.com/chendaleiQ/keyglow/releases), open it, and drag **KeyGlow.app** to **Applications**. Development DMGs are available inside the artifact archive under [Actions](https://github.com/chendaleiQ/keyglow/actions/workflows/build.yml).
 
 Builds are ad-hoc signed and are not notarized. macOS may block the first launch. After checking that the download is from this repository, use **System Settings → Privacy & Security → Open Anyway** if offered.
 
@@ -53,15 +53,16 @@ For a universal build:
 
 ```sh
 UNIVERSAL=1 ./build.sh
+./package.sh  # create a DMG with an Applications shortcut
 ```
 
 Rebuilding changes the ad-hoc signature, so macOS may require you to grant Input Monitoring permission again.
 
 ## Automated builds
 
-[GitHub Actions](.github/workflows/build.yml) builds a universal app on pushes, pull requests, and manual runs. It validates the bundle, both architectures, and code signature, then uploads a versioned ZIP and SHA-256 checksum as a build artifact.
+[GitHub Actions](.github/workflows/build.yml) builds a universal app on pushes, pull requests, and manual runs. It validates the bundle, both architectures, and code signature, then uploads a versioned DMG and SHA-256 checksum as a build artifact.
 
-After a successful build on `main`, Actions reads `CFBundleShortVersionString` from `Info.plist`, creates the matching tag (for example, `v1.2.0`), and publishes the ZIP and checksum to a GitHub Release. Published versions are skipped; increase the version in `Info.plist` for the next release. Existing tags are never moved. Manual `v*` tag pushes are also supported and must match the app version. Publishing requires the repository's Actions workflow permissions to allow release writes.
+After a successful build on `main`, Actions reads `CFBundleShortVersionString` from `Info.plist`, creates the matching tag (for example, `v1.2.0`), and publishes the DMG and checksum to a GitHub Release. Published versions are skipped; increase the version in `Info.plist` for the next release. Existing tags are never moved. Manual `v*` tag pushes are also supported and must match the app version. Publishing requires the repository's Actions workflow permissions to allow release writes.
 
 ## Platform and license
 
